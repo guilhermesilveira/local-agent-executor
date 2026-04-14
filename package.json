@@ -1,13 +1,38 @@
 {
   "name": "@guilhermesilveira/local-agent-executor",
   "version": "0.1.0",
-  "private": true,
+  "description": "Small local executor for pi and claude CLI runs, with spawn-spec builders, test-friendly mocks, and structured output helpers.",
+  "license": "MIT",
+  "author": "Guilherme Silveira",
+  "homepage": "https://github.com/guilhermesilveira/local-agent-executor#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/guilhermesilveira/local-agent-executor.git"
+  },
+  "bugs": {
+    "url": "https://github.com/guilhermesilveira/local-agent-executor/issues"
+  },
+  "keywords": [
+    "agent",
+    "cli",
+    "claude",
+    "executor",
+    "mock",
+    "pi",
+    "spawn"
+  ],
   "type": "module",
   "scripts": {
     "test": "vitest run"
   },
   "main": "./index.js",
   "types": "./index.d.ts",
+  "files": [
+    "index.js",
+    "index.d.ts",
+    "README.md",
+    "LICENSE"
+  ],
   "exports": {
     ".": {
       "types": "./index.d.ts",
