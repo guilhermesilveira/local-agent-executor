@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "scripts": {
+    "test": "vitest run"
+  },
   "main": "./index.js",
   "types": "./index.d.ts",
   "exports": {
@@ -10,5 +13,8 @@
       "types": "./index.d.ts",
       "default": "./index.js"
     }
+  },
+  "devDependencies": {
+    "vitest": "^4.1.1"
   }
 }

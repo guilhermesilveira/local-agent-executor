@@ -5,6 +5,18 @@ import { spawn, spawnSync } from 'node:child_process';
 
 export const LOCAL_AGENT_RUNNERS = ['pi', 'claude'];
 
+function createMockSpawnSyncResult() {
+  return {
+    output: [],
+    stdout: Buffer.alloc(0),
+    stderr: Buffer.alloc(0),
+    status: 0,
+    signal: null,
+    error: undefined,
+    pid: 0,
+  };
+}
+
 function normalizeNewlines(text) {
   return String(text || '').replace(/\r\n/g, '\n');
 }
@@ -260,4 +272,67 @@ export function runLocalAgentSpawnSpecSync(opts) {
     input: opts.spec.stdinText,
     stdio: [opts.spec.stdinText !== undefined ? 'pipe' : 'ignore', opts.stdoutFd, opts.stderrFd],
   });
+}
+
+export class LocalAgentExecutor {
+  buildSpawnSpec(request) {
+    return buildLocalAgentSpawnSpec(request);
+  }
+
+  spawn(opts) {
+    return spawnLocalAgentProcess({
+      spec: this.buildSpawnSpec(opts.request),
+      cwd: opts.cwd,
+      env: opts.env,
+      stdoutFd: opts.stdoutFd,
+      stderrFd: opts.stderrFd,
+      detached: opts.detached,
+    });
+  }
+
+  runSync(opts) {
+    return runLocalAgentSpawnSpecSync({
+      spec: this.buildSpawnSpec(opts.request),
+      cwd: opts.cwd,
+      env: opts.env,
+      stdoutFd: opts.stdoutFd,
+      stderrFd: opts.stderrFd,
+    });
+  }
+}
+
+export class MockLocalAgentExecutor {
+  constructor(config = {}) {
+    this.buildSpawnSpecCalls = [];
+    this.spawnCalls = [];
+    this.runSyncCalls = [];
+    this.buildSpawnSpecImpl = config.buildSpawnSpecImpl;
+    this.spawnImpl = config.spawnImpl;
+    this.runSyncImpl = config.runSyncImpl;
+    this.defaultSpawnSpec = config.defaultSpawnSpec;
+    this.defaultSpawnResult = config.defaultSpawnResult;
+    this.defaultRunSyncResult = config.defaultRunSyncResult;
+  }
+
+  buildSpawnSpec(request) {
+    this.buildSpawnSpecCalls.push(request);
+    if (this.buildSpawnSpecImpl) return this.buildSpawnSpecImpl(request);
+    if (this.defaultSpawnSpec) return this.defaultSpawnSpec;
+    return buildLocalAgentSpawnSpec(request);
+  }
+
+  spawn(opts) {
+    this.spawnCalls.push(opts);
+    if (this.spawnImpl) return this.spawnImpl(opts);
+    return this.defaultSpawnResult || {
+      pid: 0,
+      stdin: { end() {} },
+    };
+  }
+
+  runSync(opts) {
+    this.runSyncCalls.push(opts);
+    if (this.runSyncImpl) return this.runSyncImpl(opts);
+    return this.defaultRunSyncResult || createMockSpawnSyncResult();
+  }
 }

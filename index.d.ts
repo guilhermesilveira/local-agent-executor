@@ -45,6 +45,15 @@ export interface LocalAgentSpawnSpec {
   tempFiles?: string[];
 }
 
+export interface LocalAgentSpawnRequest {
+  request: LocalAgentExecutionOptions;
+  cwd: string;
+  env: NodeJS.ProcessEnv;
+  stdoutFd: number;
+  stderrFd: number;
+  detached?: boolean;
+}
+
 export interface MaterializedArgs {
   args: string[];
   promptFile?: string;
@@ -83,3 +92,31 @@ export function runLocalAgentSpawnSpecSync(opts: {
   stdoutFd: number;
   stderrFd: number;
 }): SpawnSyncReturns<Buffer>;
+
+export class LocalAgentExecutor {
+  buildSpawnSpec(request: LocalAgentExecutionOptions): LocalAgentSpawnSpec;
+  spawn(opts: LocalAgentSpawnRequest): ChildProcess;
+  runSync(opts: Omit<LocalAgentSpawnRequest, 'detached'>): SpawnSyncReturns<Buffer>;
+}
+
+export interface MockLocalAgentExecutorConfig {
+  buildSpawnSpecImpl?: (request: LocalAgentExecutionOptions) => LocalAgentSpawnSpec;
+  spawnImpl?: (opts: LocalAgentSpawnRequest) => ChildProcess;
+  runSyncImpl?: (opts: Omit<LocalAgentSpawnRequest, 'detached'>) => SpawnSyncReturns<Buffer>;
+  defaultSpawnSpec?: LocalAgentSpawnSpec;
+  defaultSpawnResult?: ChildProcess;
+  defaultRunSyncResult?: SpawnSyncReturns<Buffer>;
+}
+
+export class MockLocalAgentExecutor {
+  constructor(config?: MockLocalAgentExecutorConfig);
+  buildSpawnSpecCalls: LocalAgentExecutionOptions[];
+  spawnCalls: LocalAgentSpawnRequest[];
+  runSyncCalls: Omit<LocalAgentSpawnRequest, 'detached'>[];
+  defaultSpawnSpec?: LocalAgentSpawnSpec;
+  defaultSpawnResult?: ChildProcess;
+  defaultRunSyncResult?: SpawnSyncReturns<Buffer>;
+  buildSpawnSpec(request: LocalAgentExecutionOptions): LocalAgentSpawnSpec;
+  spawn(opts: LocalAgentSpawnRequest): ChildProcess;
+  runSync(opts: Omit<LocalAgentSpawnRequest, 'detached'>): SpawnSyncReturns<Buffer>;
+}
